@@ -1,22 +1,21 @@
 ﻿import React, { SyntheticEvent, useState } from 'react';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
 import { Activity } from '../../../app/models/activity';
+import { useStore } from '../../../app/stores/store';
 
 interface Props {
     activities: Activity[];
-    selectActivity: (id: string) => void;
     deleteActivity: (id: string) => void;
-    deleting: boolean;
-    cancelSelectActivity: () => void;
+    submitting: boolean;
 }
 
-export default function ActivityList({ activities, selectActivity, deleteActivity, deleting, cancelSelectActivity }: Props) {
+export default function ActivityList({ activities, deleteActivity, submitting }: Props) {
     const [target, setTarget] = useState('');
+    const { activityStore } = useStore();
 
     function handleActivityDelete(e: SyntheticEvent<HTMLButtonElement>, id: string) {
         setTarget(e.currentTarget.name);
         deleteActivity(id);
-        cancelSelectActivity();
     }
 
     return (
@@ -32,13 +31,17 @@ export default function ActivityList({ activities, selectActivity, deleteActivit
                                 <div>{activity.city}, {activity.venue}</div>
                             </Item.Description>
                             <Item.Extra>
-                                <Button floated='right' content='View' color='blue' onClick={() =>
-                                    selectActivity(activity.id)} />
+                                <Button
+                                    floated='right'
+                                    content='View'
+                                    color='blue'
+                                    onClick={() =>
+                                        activityStore.selectActivity(activity.id)} />
 
                                 <Button
                                     name={activity.id}
                                     floated='right'
-                                    loading={deleting && target === activity.id}
+                                    loading={submitting && target === activity.id}
                                     content='Delete'
                                     color='red'
                                     onClick={(e) =>
